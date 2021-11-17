@@ -61,7 +61,7 @@ symbol = Token.symbol lexer
 
 list = do
   char '['
-  list <- (many (spaces >> pattern))
+  list <- many (spaces >> pattern)
   char ']'
   return (PPSeq list)
 
@@ -75,7 +75,7 @@ ppr = do
   symbol "|:|"
   PPR (PPSeq p) . PPSeq <$> pats
 
-ppr' = chainl1 pats oo
+ppr' = chainl1 pats (try oo' <|> oo)
 
 oo :: Parser ([Pat String] -> [Pat String] -> [Pat String])
 oo = do
@@ -83,15 +83,21 @@ oo = do
   symbol "|:|"
   return (\p p' -> [PPR (PPSeq p) (PPSeq p')])
 
+oo' :: Parser ([Pat String] -> [Pat String] -> [Pat String])
+oo' = do
+  spaces
+  symbol "|+|"
+  return (\p p' -> [PPM (PPSeq p) (PPSeq p')])
+
 goo = makeExprParser (many (spaces >> pattern) >>= return . PPSeq) bOperators <|> pattern
 
 infixExprHelper p f = do
   p
-  return (\e e'-> f e e')
+  return f
 
 --bOperators :: [[Operator Parser (Pat String)]]
 bOperators =
-  [ [InfixL (infixExprHelper (symbol "-|-") PPM)
+  [ [InfixL (infixExprHelper (symbol "++") PPM)
     , InfixL (infixExprHelper (symbol "|:|") PPR) ]
   ]
 
@@ -129,10 +135,9 @@ instance Functor Pat where
   fmap f (PPR xs ys)   = PPR (fmap f xs) (fmap f ys)
 
 expand :: (Event a b) => Int -> Int -> [Pat a] -> [Pat a]
-expand leastCM n seq = foldr
-  (\a r -> [a] ++ (take ((leastCM `div` n) - 1) (repeat (PPLit (slient)))) ++ r)
+expand leastCM n = foldr
+  (\a r -> [a] ++ replicate ((leastCM `div` n) - 1) (PPLit slient) ++ r)
   []
-  seq
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -170,21 +175,22 @@ subdivAux :: Event a b => Pat a -> (Int, [Pat a])
 subdivAux (PPLit s)  = (1, [PPLit s])
 subdivAux (PPPar s)  = (1, [PPPar s])
 subdivAux (PPR l r)  = subdivAux (pr l r)
-subdivAux (PPM l r)  = error "no implementation for PPM"
+subdivAux (PPM l r)  = subdivAux (pm l r)
 subdivAux (PPSeq ss) =
   let (ns, ss') = unzip (map subdivAux ss)
-      n         = (foldr1 lcm ns) * length ss
+      n         = foldr1 lcm ns * length ss
   in (n, concatMap (extend n (length ss)) ss')
   where
     extend n ln ss = ss ++ replicate ((n `div` ln) - length ss) (PPLit slient)
 
 --expand leastCM n seq = foldr (\a r -> [a] ++ (take ((leastCM `div` n) - 1) (repeat "-")) ++ r)  [] seq 
 
-pm :: Event a b => Pat a -> Pat a -> [[Pat a]]
+pm :: Event a b => Pat a -> Pat a -> Pat a
 pm (PPSeq l)  (PPSeq r) =
-  let l' = PPSeq (concat (take (length r) (repeat l)))
-      r' = PPSeq (concat (take (length l) (repeat r)))
-  in  zipWith (\x y -> [x,y]) (subdiv l') (subdiv r')
+  let l' = PPSeq (concat (replicate (length r) l))
+      r' = PPSeq (concat (replicate (length l) r))
+  in  PPSeq $ map PPPar $ zipWith (\x y -> [x,y]) (subdiv l') (subdiv r')
+pm _          _         = error "pm missing cases"
 
 pr :: Event a b => Pat a -> Pat a -> Pat a
 pr l r =
@@ -204,7 +210,8 @@ flatten' :: [Pat String] -> String
 flatten' = unwords . map f'
   where
     f' (PPLit s)  = s
-    f' (PPPar ls) = "[" ++ (intercalate " " $ map f' ls) ++ "] "
+    f' (PPPar ls) = "[" ++ unwords (map f' ls) ++ "] "
+    f' _          = error "f' missing cases"
 
 
 ----------------------

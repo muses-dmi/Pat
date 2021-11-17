@@ -50,7 +50,7 @@ All this is combined in to a single function:
 *Main Lib Paths_pat> flatten "bd - bd - |:| hh - sn"
 ``` 
 
-Here using a polyrhythmic merge and will output:
+Here using a polyrhythmic (```|:|```) merge and will output:
 
 ```haskell
 "[bd hh]  [- -]  [- -]  [- -]  [- -]  [- -]  [bd -]  [- -]  [- sn]  [- -]  [- -]  [- -] "
@@ -58,4 +58,16 @@ Here using a polyrhythmic merge and will output:
 
 > note that this is a fully expanded sequence and "notes" within [] represents notes 
 > that are played concurrently with on another.
+
+We can do polymetric (```|+|```) merge too:
+
+```haskell
+*Main Lib Paths_pat> flatten "bd - bd - |+| hh - sd"
+```
+
+which outputs:
+
+```haskell
+"[bd hh]  [- -]  [bd sd]  [- hh]  [bd -]  [- sd]  [bd hh]  [- -]  [bd sd]  [- hh]  [bd -]  [- sd] "
+```
 # pat
