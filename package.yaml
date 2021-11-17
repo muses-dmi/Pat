@@ -41,6 +41,7 @@ executables:
       - FunctionalDependencies
       - TypeSynonymInstances
       - FlexibleInstances
+      - FlexibleContexts
     ghc-options:
     - -threaded
     - -rtsopts

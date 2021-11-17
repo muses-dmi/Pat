@@ -96,9 +96,7 @@ bOperators =
   ]
 
 parseString :: String -> Pat String
-parseString str = case parse (many (spaces >> pattern)) "" str of
-  Left  e -> error $ show e
-  Right r -> PPSeq r
+parseString = PPSeq . parseString'
 
 parseString' :: String -> [Pat String]
 parseString' str = case parse ppr' "" str of
@@ -138,12 +136,12 @@ expand leastCM n seq = foldr
 
 -----------------------------------------------------------------------------------------------------------------------
 
-data Pattern =
-    PStr String
-  | PSeq [Pattern]
-  | PM [Pattern]
-  | PR [Pattern]
-    deriving (Show)
+-- data Pattern =
+--     PStr String
+--   | PSeq [Pattern]
+--   | PM [Pattern]
+--   | PR [Pattern]
+--     deriving (Show)
 
 -- subdivAux' :: Event a b => Pat a -> (Int, [a])
 -- subdivAux' (PPLit s) = (1, [s])
@@ -171,23 +169,25 @@ subdiv = snd . subdivAux
 subdivAux :: Event a b => Pat a -> (Int, [Pat a])
 subdivAux (PPLit s)  = (1, [PPLit s])
 subdivAux (PPPar s)  = (1, [PPPar s])
+subdivAux (PPR l r)  = subdivAux (pr l r)
+subdivAux (PPM l r)  = error "no implementation for PPM"
 subdivAux (PPSeq ss) =
   let (ns, ss') = unzip (map subdivAux ss)
       n         = (foldr1 lcm ns) * length ss
-  in (n, concat (map (extend n (length ss)) ss'))
+  in (n, concatMap (extend n (length ss)) ss')
   where
-    extend n ln ss = ss ++ take ((n `div` ln) - length ss) (repeat (PPLit slient))
+    extend n ln ss = ss ++ replicate ((n `div` ln) - length ss) (PPLit slient)
 
 --expand leastCM n seq = foldr (\a r -> [a] ++ (take ((leastCM `div` n) - 1) (repeat "-")) ++ r)  [] seq 
 
 pm :: Event a b => Pat a -> Pat a -> [[Pat a]]
-pm (PPSeq l)  (PPSeq r) = 
+pm (PPSeq l)  (PPSeq r) =
   let l' = PPSeq (concat (take (length r) (repeat l)))
       r' = PPSeq (concat (take (length l) (repeat r)))
   in  zipWith (\x y -> [x,y]) (subdiv l') (subdiv r')
 
 pr :: Event a b => Pat a -> Pat a -> Pat a
-pr l r = 
+pr l r =
   let (nl, sl) = subdivAux l
       (nr, sr) = subdivAux r
       llr = lcm nl nr
@@ -197,14 +197,17 @@ pr l r =
 
 ----------------------
 
---patToTidal :: Pat String -> String
-patToTidal (PPSeq [PPR l r]) = 
-  pr l r
-  --(map toTidal (pr l r)) 
-  --intercalate " " (map toTidal (pr l r)) 
+flatten :: String -> String
+flatten = flatten' . subdiv . parseString
 
-toTidal :: [String] -> String
-toTidal = intercalate " " . map (\x -> if x == "-" then "~" else x)
+flatten' :: [Pat String] -> String
+flatten' = unwords . map f'
+  where
+    f' (PPLit s)  = s
+    f' (PPPar ls) = "[" ++ (intercalate " " $ map f' ls) ++ "] "
+
+
+----------------------
 
 main :: IO ()
 main = someFunc

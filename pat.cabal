@@ -50,6 +50,7 @@ executable pat-exe
       FunctionalDependencies
       TypeSynonymInstances
       FlexibleInstances
+      FlexibleContexts
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
