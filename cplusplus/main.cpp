@@ -13,12 +13,6 @@ int main() {
   std::stringstream ss("bd sd |+| [bd sd]");
   std::stringstream sss("bd [sd hh] |:| - sd");
 
-  pat::Tokenizer tz{ss};
-
-  while (tz.hasMoreTokens()) {
-    std::cout << tz.getToken().toString() << " ";
-  }
-
   pat::Parser parser{sss};
 
   auto v = parser.parse();
