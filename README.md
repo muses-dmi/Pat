@@ -1,6 +1,6 @@
 # Notions of Time
 
-## Build and run
+## Haskell version
 
 As long an up-to-date version of Haskell's stack is installed do:
 
@@ -70,4 +70,7 @@ which outputs:
 ```haskell
 "[bd hh]  [- -]  [bd sd]  [- hh]  [bd -]  [- sd]  [bd hh]  [- -]  [bd sd]  [- hh]  [bd -]  [- sd] "
 ```
-# pat
+# C++ Version
+
+In the directory ```cplusplus```. This is a single header file **pat.hpp**. This is still in active development 
+and currently there is a ADT for Pat along with a parser, but no flatten algorithm as of yet.
