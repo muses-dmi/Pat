@@ -1,5 +1,6 @@
 #include <pat.hpp>
 #include <pat_parser.hpp>
+#include <pat_flatten.hpp>
 #include <sstream>
 
 //---------------------------------------------------------------------------
@@ -14,11 +15,21 @@ int main() {
   std::stringstream ss("bd sd |+| [bd sd]");
   std::stringstream sss("bd [sd hh] |:| - sd");
 
-  pat::Parser parser{sss};
+  std::stringstream ex1("bd sd bd [sd sd]");
 
+  pat::Parser parser{ex1};
   auto v = parser.parse();
 
+  auto t = pat::subdivAux(v);
+
+  pat::top tp;
+  for (auto &h: std::get<1>(t)) {
+    tp.push_back(h);
+  }
+
   std::cout << "\n" << v;
+
+  std::cout << "\n" << tp;
 
   return 0;
 }
