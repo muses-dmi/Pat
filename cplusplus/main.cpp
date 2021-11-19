@@ -1,4 +1,5 @@
 #include <pat.hpp>
+#include <pat_parser.hpp>
 #include <sstream>
 
 //---------------------------------------------------------------------------
