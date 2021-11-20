@@ -12,20 +12,22 @@ int main() {
 
   std::cout << val << std::endl;
 
-  std::stringstream ss("bd sd |+| [bd sd]");
+  
+
   std::stringstream sss("bd [sd hh] |:| - sd");
 
   std::stringstream ex1("bd sd bd [sd sd]");
+  std::stringstream ex2("bd - bd - |:| hh - sn");
 
-  pat::Parser parser{ex1};
+  pat::Parser parser{ex2};
   auto v = parser.parse();
 
-  auto t = pat::subdivAux(v);
+  auto tp = pat::subdiv(v);
 
-  pat::top tp;
-  for (auto &h: std::get<1>(t)) {
-    tp.push_back(h);
-  }
+  // pat::top tp;
+  // for (auto &h: std::get<1>(t)) {
+  //   tp.push_back(h);
+  // }
 
   std::cout << "\n" << v;
 
