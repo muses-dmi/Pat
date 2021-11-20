@@ -72,5 +72,10 @@ which outputs:
 ```
 # C++ Version
 
-In the directory ```cplusplus```. This is a single header file **pat.hpp**. This is still in active development 
-and currently there is a ADT for Pat along with a parser, but no flatten algorithm as of yet.
+In the directory ```cplusplus```. This is a single header file **pat.hpp**. The basic API is 
+complete, it supports parsing, flattening, and a simple printing.
+
+TODO:
+
+   - C API
+   - MAX external interface
