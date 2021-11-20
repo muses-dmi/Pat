@@ -1,6 +1,4 @@
 #include <pat.hpp>
-#include <pat_parser.hpp>
-#include <pat_flatten.hpp>
 #include <sstream>
 
 //---------------------------------------------------------------------------
@@ -23,11 +21,6 @@ int main() {
   auto v = parser.parse();
 
   auto tp = pat::subdiv(v);
-
-  // pat::top tp;
-  // for (auto &h: std::get<1>(t)) {
-  //   tp.push_back(h);
-  // }
 
   std::cout << "\n" << v;
 
