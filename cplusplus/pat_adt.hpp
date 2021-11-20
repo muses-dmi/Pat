@@ -67,8 +67,8 @@ namespace pat {
 
     // invariant must be two elements long, this is used rather
     // than tuple to enable explicit allocation for recursion
-    struct pmm : std::vector<value> {
-      using std::vector<value>::vector;
+    struct pmm : std::vector<seq> {
+      using std::vector<seq>::vector;
     };
 
     struct printer {
@@ -124,8 +124,8 @@ namespace pat {
         return os_;
       }
       std::ostream &operator()(pmm const &a) const {
-        std::visit(*this, a[0]) << " |+| ";
-        std::visit(*this, a[1]);
+        std::visit(*this, value{a[0]}) << " |+| ";
+        std::visit(*this, value{a[1]});
         return os_;
       }
     };

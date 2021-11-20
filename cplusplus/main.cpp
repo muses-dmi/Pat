@@ -12,12 +12,11 @@ int main() {
 
   
 
-  std::stringstream sss("bd [sd hh] |:| - sd");
-
   std::stringstream ex1("bd sd bd [sd sd]");
   std::stringstream ex2("bd - bd - |:| hh - sn");
+  std::stringstream ex3("bd - bd - |+| hh - sd");
 
-  pat::Parser parser{ex2};
+  pat::Parser parser{ex3};
   auto v = parser.parse();
 
   auto tp = pat::subdiv(v);

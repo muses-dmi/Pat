@@ -103,11 +103,40 @@ namespace pat {
 
                 return subdivAux(v);
               },
-              [&](auto self, pmm const &a) {
-                int x = 0;
-                std::vector<value> v;
 
-                return std::make_tuple(x, v);
+              //               pm :: Event a b => Pat a -> Pat a -> Pat a
+              // pm (PPSeq l)  (PPSeq r) =
+              //   let l' = PPSeq (concat (replicate (length r) l))
+              //       r' = PPSeq (concat (replicate (length l) r))
+              //   in  PPSeq $ map PPPar $ zipWith (\x y -> [x,y]) (subdiv l')
+              //   (subdiv r')
+              // pm _          _         = error "pm missing cases"
+
+              [&](auto self, pmm const &a) {
+                auto l = a[0];
+                auto r = a[1];
+                seq ll;
+                for (int i = 0; i < r.size(); i++) {
+                  for (auto &v: l) {
+                    ll.push_back(v);
+                  }
+                }
+                auto ls = std::get<1>(subdivAux(ll));
+
+                seq rr;
+                for (int i = 0; i < l.size(); i++) {
+                  for (auto &v : r) {
+                    rr.push_back(v);
+                  }
+                }
+                auto rs = std::get<1>(subdivAux(rr));
+
+                seq v;
+                for (int i = 0; i < ls.size(); i++) {
+                  v.push_back(value{par{ls[i], rs[i]}});
+                }
+
+                return subdivAux(v);
               }}},
           p);
     }

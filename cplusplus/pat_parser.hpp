@@ -211,8 +211,8 @@ namespace pat {
               std::vector<value> right{current_};
               current_.clear();
 
-              top l;
-              top r;
+              seq l;
+              seq r;
 
               for (auto &v : left) {
                 l.push_back(v);
