@@ -1,3 +1,16 @@
+/*
+ * C++ header only implementation of Pat, a simple language for expressing
+ * poly rythms. Details of Pat can be found in the paper:
+ *
+ *   Nathan Renney and Benedict R. Gaster. (2019) Digital Expression and
+ *   Representation of Rhythm. AM'19: Proceedings of the 14th International
+ *   Audio Mostly Conference on Augmented and Participatory Sound and Music
+ *   Experiences.
+ *
+ *   https://uwe-repository.worktribe.com/output/2569484
+ *
+ * Copyright: Benedict R. Gaster (2021)
+ */
 #pragma once
 
 #include <algorithm>
@@ -12,9 +25,13 @@
 #include <vector>
 
 namespace impl {
-    template <typename... Bases> struct visitor : Bases... {
-        using Bases::operator()...;
-    };
+  // a small set of utility templates to support using lambdas in std::visit,
+  // in combination with recursion.
+  // the implementation is based on ideas in excellent blog:
+  //     https://jgreitemann.github.io/2019/02/03/recursive-visitors-from-fixed-point-combinators/
+  template <typename... Bases> struct visitor : Bases... {
+    using Bases::operator()...;
+  };
 
     template <typename... Bases> visitor(Bases...) -> visitor<Bases...>;
 
@@ -35,8 +52,10 @@ namespace pat {
     //
     //  name ::= [a-zA-Z]+
 
-    // The internal ADT is extended to support notes that happen in parallel, which is expressed in pat with 
-    // the polyrythmic merge operator, but once fully flattened is expressed by lists of "parallel" notes.
+    // The internal ADT is extended to support notes that happen in parallel, 
+    // which is expressed in pat with the polyrythmic or polymetric merge 
+    // operators, but once fully flattened is expressed by lists of "parallel" 
+    // notes.
 
     struct top; // forward declaration
     struct seq; // forward declaration
@@ -45,6 +64,7 @@ namespace pat {
     struct prm; // forward declaration
     struct pmm; // forward declaration
 
+    // variant (sum) type for patterns
     using value = std::variant<std::string, top, seq, par, prm, pmm>;
 
     struct top : std::vector<value> {
@@ -71,13 +91,12 @@ namespace pat {
       using std::vector<seq>::vector;
     };
 
+    // simple pretty printer for patterns
     struct printer {
     private:
       std::ostream &os_;
-      bool toplevel_;
-
     public:
-      printer(std::ostream &os) : os_{os}, toplevel_{true} {}
+      printer(std::ostream &os) : os_{os} {}
 
       std::ostream &operator()(std::string const &s) const {
         return os_ << s;
